@@ -94,48 +94,6 @@ class Renderer:
 						pickle.dump(nodes_tour, f)
 			assert len(nodes_tour) % 2 == 0
 
-			# # Make sure jumps are crossed
-			# nodes_tour_z = [node_z_canon[n] for n in nodes_tour]
-			# for i in range(1, len(nodes_tour) - 1, 2):
-			# 	n1, nc, n2 = nodes_tour[i : i + 3]
-			# 	if node_t_canon[n1] != node_t_canon[nc]:
-			# 		z1, zc, z2 = [node_z_canon[n] for n in [n1, nc, n2]]
-			# 		try:
-			# 			idxcc = nodes_tour_z.index(zc, i + 3)
-			# 		except ValueError:
-			# 			try:
-			# 				idxcc = nodes_tour_z.index(zc, 0, i)
-			# 			except ValueError:
-			# 				continue
-			#
-			# 		if idxcc % 2 == 0:
-			# 			idx3 = idxcc + 1
-			# 			idx4 = (idxcc - 1) % len(nodes_tour)
-			# 		else:
-			# 			idx3 = idxcc - 1
-			# 			idx4 = (idxcc + 1) % len(nodes_tour)
-			#
-			# 		z3, z4 = [nodes_tour_z[idx] for idx in [idx3, idx4]]
-			#
-			# 		a1, a2, a3, a4 = [np.angle(z - zc) for z in [z1, z2, z3, z4]]
-			# 		if a1 < a2:
-			# 			amin, amax = a1, a2
-			# 		else:
-			# 			amin, amax = a2, a1
-			#
-			# 		if (amin <= a3 <= amax) is (amin <= a4 <= amax):
-			# 			if idxcc > i + 1:
-			# 				start = i + 1
-			# 				end = idx3 + 1 if idxcc % 2 == 0 else idxcc + 1
-			# 			else:
-			# 				start = idxcc if idxcc % 2 == 0 else idx3
-			# 				end = i + 1
-			# 			print(start, end, i, amin, amax, a3, a4)
-			# 			if start == 44:
-			# 				print('hi')
-			# 			nodes_tour[start:end] = reversed(nodes_tour[start:end])
-			# 			nodes_tour_z[start:end] = reversed(nodes_tour_z[start:end])
-
 			# Construct interpolation from new contour time to old contour time
 			jumps = []
 			t_t_tsp = [0] * 2
@@ -169,14 +127,12 @@ class Renderer:
 				t_t_tour[jump_idxs] = jumps  # Make sure that segments end and start on a jump
 			t_tour = np.interp(t_t_tour, t_t_tsp, t_z_tsp)
 			z_tour = np.interp(t_tour, t_canon, z_canon)
-			# z_tour = [node_coords[n] for n in nodes_tour]
 
 			# Cut frequencies
 			coefs = np.fft.fft(z_tour)
 			arg_coefs = np.argsort(np.abs(coefs))
 			coefs[arg_coefs[:len(arg_coefs) - 1 - nfreqs]] = 0
 			z_fft = np.fft.ifft(coefs)
-			# z_fft = z_tour
 
 			# Make closed contour for plotting
 			z_fft = np.append(z_fft, z_fft[0])

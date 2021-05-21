@@ -1,12 +1,8 @@
-import math
 import os
 from concurrent.futures import ProcessPoolExecutor
 import subprocess
 
-import matplotlib.pyplot as plt
 import numpy as np
-from scipy import signal
-from scipy.io import wavfile
 from tqdm import tqdm
 
 import config
@@ -35,27 +31,6 @@ def main():
 	if TEST is True:
 		mp_init(files[0], CACHING, show=True)
 		mp_func(2**10, 2**10-1, True, files[5000-1])
-
-		# sr, data = wavfile.read(config.INPUT_AUDIO_FILE)
-		# data = (data + 32768) / (32767 + 32768) * 2 - 1
-		# data = data[:, 0] + 1j * data[:, 1]
-		#
-		# f, t, zxx = signal.stft(data, sr, 'hann', 2**13, 2**13*5//6, return_onesided=False)
-		#
-		# for i in range(len(t)):
-		# 	coefs = zxx[:,i].squeeze()
-		# 	arg_coefs = np.argsort(np.abs(coefs))
-		# 	coefs[arg_coefs[:len(coefs) - 70]] = 0
-		#
-		# t, x = signal.istft(zxx, sr, 'hann', 2**13, 2**13*5//6, input_onesided=False)
-		#
-		# x = np.stack([x.real, x.imag], axis=-1)
-		# x = x.clip(-1, 1)
-		# x = ((x + 1) / 2 * (32767 + 32768) - 32768).astype('i2')
-		# wavfile.write(config.OUTPUT_AUDIO_FILE, sr, x)
-		# # plt.plot(x.real)
-		# # plt.plot(x.imag)
-		# # plt.show()
 
 	elif TEST is False:
 		filenames = files
