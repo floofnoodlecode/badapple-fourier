@@ -1,5 +1,9 @@
-# Render Bad Apple animation using Fourier frequencies
+# Original Video
+https://www.youtube.com/watch?v=FtutLA63Cp8
 
+![](gifs/orig.gif)
+
+# Render Bad Apple animation using Fourier frequencies
 Each frame is rendered using the following steps:
 1. Detect the contours in the original Bad Apple video
 2. Join the contours so that they form a continuous line
@@ -9,7 +13,12 @@ Each frame is rendered using the following steps:
 
 Result: https://www.youtube.com/watch?v=ad5Bo3N-D9E
 
+![](gifs/fourier48.gif)
+
 
 ## Square waves (squarewave branch)
+Same idea, but the contour is drawn using a sum of square waves, instead of sinusoids
 
-Same idea, but the contour is decomposed into a sum of square waves, instead of sinusoids
+Result: https://www.youtube.com/watch?v=OG9G8nK2q_Q
+
+![](gifs/squarewave96.gif)
