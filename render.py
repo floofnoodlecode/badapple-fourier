@@ -12,30 +12,34 @@ from skimage.measure import find_contours
 import config
 
 
+def harmonic(y, k):
+	N = len(y)
+	return y[np.arange(N) * k % N]
+
 class Renderer:
 	def __init__(self):
 		self.artists = []
 		self.fig, self.ax = plt.subplots()
-		self.caching = False
-		self.show = False
-		self.shape = None, None
 
-	def init(self, filename, caching, show):
+	def init(self, sqw, ifftmat, filename, caching, show=False, res=360):
+		self.npoints = len(sqw)
+		self.sqw = sqw
+		self.ifftmat = ifftmat
+
 		self.caching = caching
 		self.show = show
 
 		frame = imread(os.path.join(config.INPUT_FRAMES_DIR, filename), as_gray=True)
-		self.shape = height, width = frame.shape
+		height, width = frame.shape
 
 		self.fig.set_tight_layout({'pad': 0})
-		self.fig.set_size_inches(width * 1080 / height / 100, 1080 / 100)
+		self.fig.set_size_inches(res * width / height / 100, res / 100)
 		self.fig.set_facecolor('black')
 		self.ax.axis('off')
 		self.ax.set_xlim(0, width)
 		self.ax.set_ylim(height, 0)
 
-	def render(self, npoints, nfreqs, show_freqs, filename):
-		npoints = int(npoints)
+	def render(self, nfreqs, show_freqs, filename):
 		nfreqs = int(nfreqs)
 
 		# Read input file
@@ -116,7 +120,7 @@ class Renderer:
 			start_z, end_z = np.interp(np.interp([0, t_t_tsp[-1]], t_t_tsp, t_z_tsp), t_canon, z_canon)
 			endpoint = not np.isclose(start_z, end_z)  # Exclude end point if it equals start point
 
-			t_t_tour = np.linspace(0, t_t_tsp[-1], npoints, endpoint=endpoint)
+			t_t_tour = np.linspace(0, t_t_tsp[-1], self.npoints, endpoint=endpoint)
 			if len(jumps):
 				jump_idxs = t_t_tour.searchsorted(jumps)
 				jump_idxs[:,0] -= 1
@@ -129,26 +133,27 @@ class Renderer:
 			z_tour = np.interp(t_tour, t_canon, z_canon)
 
 			# Cut frequencies
-			coefs = np.fft.fft(z_tour)
+			coefs = self._myfft(z_tour)
 			arg_coefs = np.argsort(np.abs(coefs))
 			coefs[arg_coefs[:len(arg_coefs) - 1 - nfreqs]] = 0
-			z_fft = np.fft.ifft(coefs)
+			z_fft = self._myifft(coefs)
+
 
 			# Make closed contour for plotting
 			z_fft = np.append(z_fft, z_fft[0])
 
 			# Plot
-			# art, = self.ax.plot(z_fft.real, z_fft.imag, color='w', marker='.')
-			# self.artists.append(art)
+			art, = self.ax.plot(z_fft.real, z_fft.imag, color='w', marker='.')
+			self.artists.append(art)
 
-			dists = np.abs(np.diff(z_fft))
-			colors = np.ones((len(dists), 4))
-			colors[:, 3] = np.minimum(np.exp(-dists + (t_t_tour[-1] / (npoints - 1) * 2)), 1)
-
-			line = np.stack([z_fft.real, z_fft.imag], axis=-1)
-			lc = LineCollection(np.stack([line[:-1], line[1:]], axis=1), colors=colors)
-			self.ax.add_collection(lc)
-			self.artists.append(lc)
+			# dists = np.abs(np.diff(z_fft))
+			# colors = np.ones((len(dists), 4))
+			# colors[:, 3] = np.minimum(np.exp(-dists + (t_t_tour[-1] / (npoints - 1) * 20)), 1)
+			#
+			# line = np.stack([z_fft.real, z_fft.imag], axis=-1)
+			# lc = LineCollection(np.stack([line[:-1], line[1:]], axis=1), colors=colors)
+			# self.ax.add_collection(lc)
+			# self.artists.append(lc)
 
 		if show_freqs:
 			art = self.ax.text(.5, 0.02, f'Frequencies: {nfreqs :>4}', color='w', fontsize=40, ha='center', transform=self.ax.transAxes)
@@ -162,6 +167,14 @@ class Renderer:
 
 		[x.remove() for x in self.artists]
 		self.artists = []
+
+	def _myfft(self, x):
+		assert len(x) == self.npoints
+		return self.ifftmat @ x
+
+	def _myifft(self, c):
+		assert len(c) == self.npoints
+		return np.sum([c[k] * harmonic(self.sqw, k) for k in range(self.npoints) if c[k] != 0], axis=0)
 
 	def _run_LKH(self, node_coords, fixed_edges):
 		if len(node_coords) < 3:
