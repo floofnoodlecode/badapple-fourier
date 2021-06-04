@@ -1,3 +1,19 @@
+# Requirements
+
+**Python 3 (preferably latest version)**
+
+**Python modules:**
+- numpy
+- matplotlib
+- skimage
+- tqdm
+
+**External:**
+- ffmpeg - needs to be installed in path
+- LKH-3 (Keld Helsgaun) - http://webhotel4.ruc.dk/~keld/research/LKH-3/
+
+---
+
 # Original Video
 https://www.youtube.com/watch?v=FtutLA63Cp8
 
