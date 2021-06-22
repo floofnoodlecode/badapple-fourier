@@ -9,7 +9,7 @@ import config
 from process import mp_init, mp_func
 
 
-EXTRACT = False
+EXTRACT = True
 CACHING = True
 TEST = False
 EXPORT_VIDEO = True
@@ -23,7 +23,7 @@ def main():
 			os.path.join(config.INPUT_FRAMES_DIR, '%04d.png'),
 			'-map', '0:a:0',
 			config.INPUT_AUDIO_FILE,
-		], capture_output=True)
+		], capture_output=False)
 
 
 	files = os.listdir(config.INPUT_FRAMES_DIR)

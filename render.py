@@ -164,6 +164,14 @@ class Renderer:
 		self.artists = []
 
 	def _run_LKH(self, node_coords, fixed_edges):
+		"""
+		Helper function that sets up the necessary files and calls the solver.
+		See the LKH documentation.
+
+		:param node_coords: List of vertex coordinates as complex numbers
+		:param fixed_edges: List of pairs of node indices between which an edge must exist
+		:return: List of indexes in the order in which they should be travelled
+		"""
 		if len(node_coords) < 3:
 			return list(range(len(node_coords)))
 
@@ -206,9 +214,9 @@ class Renderer:
 
 			nodes_tour = [int(n) - 1 for n in text.splitlines()]
 		finally:
-			os.remove(problem_file.name)
-			os.remove(solution_file.name)
-			os.remove(parameter_file.name)
+			for f in [problem_file, solution_file, parameter_file]:
+				f.close()
+				os.remove(f.name)
 
 		return nodes_tour
 

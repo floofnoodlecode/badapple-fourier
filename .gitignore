@@ -2,4 +2,3 @@
 .idea/
 **/# nosync/
 __pycache__/
-test.py

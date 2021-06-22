@@ -9,32 +9,41 @@
 - tqdm
 
 **External:**
-- ffmpeg - needs to be installed in path
+- ffmpeg - needs to be installed in `PATH`
 - LKH-3 (Keld Helsgaun) - http://webhotel4.ruc.dk/~keld/research/LKH-3/
 
 ---
+# Processing steps
+Each frame is processed using the following steps:
+1. Read image
+2. Compute contours
+3. Merge contours end to end (used for interpolation)
+    1. Compute timestamps for interpolation for each contour individually
+    2. Merge contours so that we can easily interpolate across all contours
+4. Solve Travelling Salesman Problem
+    1. Convert to TSP instance
+    2. Call the LKH-3 solver
+    3. Interpolation for merged tour
+5. Remove FFT frequencies
+6. Transparent contour based on sample distances
+7. Square waves
+
+Check out `oneframe_demo.ipynb` for a detailed demonstration with plots after every step:
+
+![](gifs/steps.gif) 
 
 # Original Video
 https://www.youtube.com/watch?v=FtutLA63Cp8
 
 ![](gifs/orig.gif)
 
-# Render Bad Apple animation using Fourier frequencies
-Each frame is rendered using the following steps:
-1. Detect the contours in the original Bad Apple video.
-2. Join the contours so that they form a continuous line, using LKH-3 as a TSP solver.
-3. Convert the (x, y) points to complex numbers.
-4. Compute the FFT, keep the 48 most important frequencies, then get a line back by applying the inverse FFT.
-5. Draw the line. The transparency of the line depends on the distance between sample points. Therefore, when the line quickly jumps across the image, it's more transparent.
-
+# Rendered using a few sinusoids
 Result: https://www.youtube.com/watch?v=ad5Bo3N-D9E
 
 ![](gifs/fourier48.gif)
 
 
-## Square waves (squarewave branch)
-Same idea, but the contour is drawn using a sum of square waves, instead of sinusoids
-
+## Rendered using Square waves (squarewave branch)
 Result: https://www.youtube.com/watch?v=OG9G8nK2q_Q
 
 ![](gifs/squarewave96.gif)

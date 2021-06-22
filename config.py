@@ -1,6 +1,6 @@
 import os
 
-INPUT_VIDEO_FILE = 'orig.mp4'
+INPUT_VIDEO_FILE = 'input/orig.mp4'
 INPUT_FRAMES_DIR = '# nosync/input/frames'
 INPUT_AUDIO_FILE = '# nosync/input/audio.wav'
 
